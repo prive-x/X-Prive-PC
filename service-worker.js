@@ -4,8 +4,7 @@ const FILES_TO_CACHE = [
   'index.html',
   'manifest.json',
   'icon-192.png',
-  'icon-512.png',
-  'assets/splash.mp4'
+  'icon-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -49,7 +48,7 @@ self.addEventListener('periodicsync', event => {
 });
 
 async function showNovidades() {
-  const permission = await self.registration.showNotification('Veja as novidades!', {
+  await self.registration.showNotification('Veja as novidades!', {
     body: 'Tem conteúdo novo pra você explorar!',
     icon: 'icon-192.png',
     badge: 'icon-192.png',
