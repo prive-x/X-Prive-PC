@@ -10,63 +10,101 @@
   <meta name="theme-color" content="#121212">
 
   <style>
+    /* Fundo animado corrigido */
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
+      height: 100vh;
       width: 100%;
+      overflow: hidden;   /* evita o balanço no celular */
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #121212, #1e1e1e);
+      color: #eee;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #eee;
+      background: linear-gradient(135deg, #121212, #1e1e1e, #2a2a2a);
+      background-size: 200% 200%;
+      animation: gradientBG 12s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Caixa decorativa */
+    #decorBox {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 500px;
+      height: 100px;
+      background: linear-gradient(90deg, #6200ea, #bb86fc, #3700b3);
+      border-radius: 0 0 40% 40%;
+      filter: blur(40px);
+      opacity: 0.4;
+      z-index: 0;
+      animation: pulse 6s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.2; }
+      to { opacity: 0.5; }
     }
 
     /* Modal de senha */
     #loginBox {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(20, 20, 20, 0.95);
-      backdrop-filter: blur(8px);
-      border-radius: 16px;
+      position: relative;
+      z-index: 1;
+      background: rgba(20, 20, 20, 0.9);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
       padding: 24px;
       width: 90%;
       max-width: 400px;
       text-align: center;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     #loginBox h2 {
       margin-bottom: 16px;
+      font-weight: 600;
     }
 
     #senha {
       width: 100%;
       padding: 12px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: none;
       margin-bottom: 16px;
       font-size: 16px;
       text-align: center;
+      outline: none;
     }
 
     button {
       padding: 12px 24px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
       cursor: pointer;
-      background: #6200ea;
+      background: linear-gradient(135deg, #6200ea, #7f39fb);
       color: #fff;
-      transition: background 0.3s ease, transform 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
 
     button:hover {
-      background: #7f39fb;
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(98, 0, 234, 0.6);
     }
 
     #mensagemErro {
@@ -76,19 +114,58 @@
       display: none;
     }
 
-    /* iframe oculto até senha correta */
+    /* iframe protegido responsivo */
     iframe {
       border: none;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       display: none;
       position: fixed;
       top: 0;
       left: 0;
+      z-index: 2;
+    }
+
+    /* Loader */
+    #loader {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 6px solid rgba(255,255,255,0.2);
+      border-top: 6px solid #bb86fc;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      display: none;
+      z-index: 3;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Responsividade */
+    @media (max-width: 480px) {
+      #loginBox {
+        padding: 20px;
+      }
+      #senha {
+        font-size: 14px;
+      }
+      button {
+        font-size: 14px;
+        padding: 10px 18px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Div decorativa -->
+  <div id="decorBox"></div>
+
   <!-- Modal de senha -->
   <div id="loginBox">
     <h2>Digite a Senha</h2>
@@ -97,8 +174,11 @@
     <p id="mensagemErro">Senha incorreta. Tente novamente.</p>
   </div>
 
+  <!-- Loader -->
+  <div id="loader"></div>
+
   <!-- Conteúdo protegido -->
-  <iframe id="mainFrame" src="https://x-prive-web.vercel.app/"></iframe>
+  <iframe id="mainFrame" src=""></iframe>
 
   <script>
     function verificarSenha() {
@@ -108,11 +188,21 @@
       const mensagemErro = document.getElementById("mensagemErro");
       const loginBox = document.getElementById("loginBox");
       const mainFrame = document.getElementById("mainFrame");
+      const loader = document.getElementById("loader");
 
       if (senha === senhaCorreta) {
         loginBox.style.display = "none";
         mensagemErro.style.display = "none";
-        mainFrame.style.display = "block";
+        loader.style.display = "block";
+
+        // Definir o src apenas após validar
+        mainFrame.src = "https://x-prive-web.vercel.app/";
+
+        // Mostrar iframe quando carregar
+        mainFrame.onload = () => {
+          loader.style.display = "none";
+          mainFrame.style.display = "block";
+        };
       } else {
         mensagemErro.style.display = "block";
       }
