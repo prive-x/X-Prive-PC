@@ -10,13 +10,12 @@
   <meta name="theme-color" content="#121212">
 
   <style>
-    /* Fundo animado corrigido */
     html, body {
       margin: 0;
       padding: 0;
       height: 100vh;
       width: 100%;
-      overflow: hidden;   /* evita o balanço no celular */
+      overflow: hidden;
       font-family: 'Segoe UI', Arial, sans-serif;
       color: #eee;
       display: flex;
@@ -33,7 +32,6 @@
       100% { background-position: 0% 50%; }
     }
 
-    /* Caixa decorativa */
     #decorBox {
       position: absolute;
       top: 0;
@@ -55,7 +53,6 @@
       to { opacity: 0.5; }
     }
 
-    /* Modal de senha */
     #loginBox {
       position: relative;
       z-index: 1;
@@ -64,7 +61,7 @@
       border-radius: 20px;
       padding: 24px;
       width: 90%;
-      max-width: 400px;
+      max-width: 320px;
       text-align: center;
       box-shadow: 0 10px 40px rgba(0,0,0,0.6);
       animation: fadeIn 1s ease;
@@ -86,25 +83,10 @@
       border-radius: 10px;
       border: none;
       margin-bottom: 16px;
-      font-size: 16px;
+      font-size: 20px;
       text-align: center;
       outline: none;
-    }
-
-    button {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      background: linear-gradient(135deg, #6200ea, #7f39fb);
-      color: #fff;
-      transition: transform 0.2s ease, box-shadow 0.3s ease;
-    }
-
-    button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 20px rgba(98, 0, 234, 0.6);
+      letter-spacing: 6px;
     }
 
     #mensagemErro {
@@ -114,7 +96,6 @@
       display: none;
     }
 
-    /* iframe protegido responsivo */
     iframe {
       border: none;
       width: 100vw;
@@ -126,7 +107,6 @@
       z-index: 2;
     }
 
-    /* Loader */
     #loader {
       position: fixed;
       top: 50%;
@@ -147,44 +127,34 @@
       100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
-    /* Responsividade */
     @media (max-width: 480px) {
       #loginBox {
         padding: 20px;
       }
       #senha {
-        font-size: 14px;
-      }
-      button {
-        font-size: 14px;
-        padding: 10px 18px;
+        font-size: 18px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Div decorativa -->
   <div id="decorBox"></div>
 
-  <!-- Modal de senha -->
   <div id="loginBox">
-    <h2>Digite a Senha</h2>
-    <input type="password" id="senha" placeholder="Senha de acesso" />
-    <button onclick="verificarSenha()">Entrar</button>
-    <p id="mensagemErro">Senha incorreta. Tente novamente.</p>
+    <h2>Digite o PIN</h2>
+    <input type="password" id="senha" maxlength="4" inputmode="numeric" placeholder="****" />
+    <p id="mensagemErro">PIN incorreto. Tente novamente.</p>
   </div>
 
-  <!-- Loader -->
   <div id="loader"></div>
 
-  <!-- Conteúdo protegido -->
   <iframe id="mainFrame" src=""></iframe>
 
   <script>
+    const senhaCorreta = "6387";
+
     function verificarSenha() {
       const senha = document.getElementById("senha").value;
-      const senhaCorreta = "24250@Ln";
-
       const mensagemErro = document.getElementById("mensagemErro");
       const loginBox = document.getElementById("loginBox");
       const mainFrame = document.getElementById("mainFrame");
@@ -195,10 +165,7 @@
         mensagemErro.style.display = "none";
         loader.style.display = "block";
 
-        // Definir o src apenas após validar
         mainFrame.src = "https://x-prive-web.vercel.app/";
-
-        // Mostrar iframe quando carregar
         mainFrame.onload = () => {
           loader.style.display = "none";
           mainFrame.style.display = "block";
@@ -208,11 +175,13 @@
       }
     }
 
-    document.getElementById("senha").addEventListener("keyup", function(event) {
-      if (event.key === "Enter") verificarSenha();
+    // Verifica automaticamente quando 4 dígitos forem digitados
+    document.getElementById("senha").addEventListener("input", function() {
+      if (this.value.length === 4) {
+        verificarSenha();
+      }
     });
 
-    // --- Registro do Service Worker ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/service-worker.js')
